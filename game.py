@@ -1,6 +1,6 @@
 # https://www.youtube.com/watch?v=-8n91btt5d8
 # Bugs:
-# * blocks appear to move up a couple pixel while falling.
+# * blocks appear to move up a couple pixels while falling.
 #   idk what could be causing this
 #
 # Improvement ideas:
@@ -18,6 +18,7 @@ import sys
 import random
 
 pygame.init()
+
 
 # window and game settings
 WIDTH = 800
@@ -40,9 +41,9 @@ score = 0
 enemy_size = 50
 enemy_pos = [0, 0]
 enemy_speed = 5
-NUM_ENEMIES = 15
+NUM_ENEMIES = 25
 enemy_list = [enemy_pos]
-
+enemy_drop_range = 20
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # The function accepts a tuple as the argument
 game_over = False
@@ -51,15 +52,17 @@ clock = pygame.time.Clock()
 
 myFont = pygame.font.SysFont("monospace", 35)
 
+
 def set_level():
     speed = enemy_speed
-    player_score =  score
+    player_score = score
     if score % 20 == 0 and score != 0:
         speed += 1
         player_score += 1  # prevents rapid increase of speed
         # it makes sense from a game standpoint, as the player
         # is given an extra point for passing a milestone
     return speed, player_score
+
 
 def drop_enemies(enemy_list):
     if len(enemy_list) < NUM_ENEMIES:
@@ -70,7 +73,7 @@ def drop_enemies(enemy_list):
         while x_pos % 50 != 0:
             x_pos = random.randint(0, WIDTH - enemy_size)
 
-        y_pos = random.randint(-enemy_size * 5, 0)
+        y_pos = random.randint(-enemy_size * enemy_drop_range, 0)
 
         enemy_list.append([x_pos, y_pos])
 
@@ -82,17 +85,17 @@ def draw_enemies(enemy_list):
 
 def update_enemy_positions(enemy_list, score):
     for idx, enemy_pos in enumerate(enemy_list):
-        if enemy_pos[1] >= -enemy_size * 5 and enemy_pos[1] <= HEIGHT:
+        if -enemy_size * enemy_drop_range <= enemy_pos[1] <= HEIGHT:
             enemy_pos[1] += enemy_speed
         else:
             enemy_list.pop(idx)
             score += 1
 
     return score
-        # if detect_collision(player_pos, enemy_pos):
-        #     game_over = True
-        #     break  # breaking the while loop here helps to stop block overlap by preventing the next draw
-        #     # I'm not sure if the break still works if it is inside of a function
+    # if detect_collision(player_pos, enemy_pos):
+    #     game_over = True
+    #     break  # breaking the while loop here helps to stop block overlap by preventing the next draw
+    #     # I'm not sure if the break still works if it is inside of a function
 
 
 def collision_check(player_pos, enemy_list):
@@ -130,6 +133,11 @@ while not game_over:
             sys.exit()  # x in the top right
 
         if event.type == pygame.KEYDOWN:
+
+            # if player presses escape, game ends
+            if event.key == pygame.K_ESCAPE:
+                sys.exit()
+
             x = player_pos[0]
             y = player_pos[1]
 
@@ -154,7 +162,6 @@ while not game_over:
     pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
 
     enemy_speed, score = set_level()
-    print(enemy_speed)
     score = update_enemy_positions(enemy_list, score)
     # Score really doesnt need to be passed to the function because it
     # is not really updated until score is assigned the return value
@@ -172,8 +179,6 @@ while not game_over:
         game_over = True
         print("Game Over")
         print("Final Score: " + str(score))
-
-
 
     clock.tick(FPS)
 
