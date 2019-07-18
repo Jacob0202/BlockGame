@@ -1,9 +1,9 @@
 # https://www.youtube.com/watch?v=-8n91btt5d8
 # Bugs:
+# Improvement ideas:
 # * blocks appear to move up a couple pixels while falling.
 #   idk what could be causing this
 #
-# Improvement ideas:
 # * Make it so that enemies only spawn in increments so that
 #   impossible gaps will not occur
 # * Difficulty modes
@@ -13,16 +13,16 @@
 # * Leader board?
 # * Hole in the wall game-mode
 
+
 import pygame
 import sys
 import random
 
 pygame.init()
 
-
 # window and game settings
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1250
+HEIGHT = 720
 FPS = 30
 
 # color variables
@@ -30,11 +30,13 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
+DARK_PURPLE = (148, 0, 211)
 BACKGROUND_COLOR = BLACK
+background_image = pygame.image.load("glitterRainbowBackground.jpg")
 
 # player variables
 player_size = 50
-player_pos = [WIDTH / 2, HEIGHT - 2 * player_size]
+player_pos = [WIDTH / 2 - (WIDTH / 2) % 50, HEIGHT - 2 * player_sizeAAWWSFRRT]
 score = 0
 
 # enemy variables
@@ -122,6 +124,8 @@ def detect_collision(player_pos, enemy_pos):
     return False  # Only returns false if both if statements are not satisfied
 
 
+
+
 # Beginning of game
 # -----------------------------------------------------------------------
 while not game_over:
@@ -142,13 +146,13 @@ while not game_over:
             y = player_pos[1]
 
             # changes player position within bounds
-            if event.key == pygame.K_LEFT and x != 0:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_a and x != 0:
                 x -= player_size
-            elif event.key == pygame.K_RIGHT and x != WIDTH - player_size:
+            elif event.key == pygame.K_RIGHT or event.key == pygame.K_d and x != WIDTH - player_size:
                 x += player_size
-            elif event.key == pygame.K_DOWN and y != HEIGHT - player_size:
+            elif event.key == pygame.K_DOWN or event.key == pygame.K_s and y != HEIGHT - player_size:
                 y += player_size
-            elif event.key == pygame.K_UP and y != 0:
+            elif event.key == pygame.K_UP or event.key == pygame.K_w and y != 0:
                 y -= player_size
 
             # update player_pos list
@@ -156,10 +160,11 @@ while not game_over:
 
     # Draw it
     screen.fill(BACKGROUND_COLOR)
+    screen.blit(background_image, (0,0))
 
     drop_enemies(enemy_list)
     draw_enemies(enemy_list)
-    pygame.draw.rect(screen, RED, (player_pos[0], player_pos[1], player_size, player_size))
+    pygame.draw.rect(screen, DARK_PURPLE, (player_pos[0], player_pos[1], player_size, player_size))
 
     enemy_speed, score = set_level()
     score = update_enemy_positions(enemy_list, score)
@@ -173,7 +178,7 @@ while not game_over:
     # and that if it was 0 the text would be vertical
 
     # Score tracker drawn on screen
-    screen.blit(label, (WIDTH - 200, HEIGHT - 40))
+    screen.blit(label, (WIDTH - 200, HEIGHT - 55))
 
     if collision_check(player_pos, enemy_list):
         game_over = True
